@@ -9,7 +9,7 @@
           <ul class="flex flex-row mt-1">
             <!-- Navigation Links -->
             <li>
-              <a class="px-2 text-white" href="#">Login / Register</a>
+              <a class="px-2 text-white" @click.prevent="toggleAuthModal" href="#">Login / Register</a>
             </li>
             <li>
               <a class="px-2 text-white" href="#">Manage</a>
@@ -20,8 +20,28 @@
     </header>
 </template>
 
-<script setup>
+<script>
+import { mapStores, mapWritableState } from 'pinia';
+import useModalStore from '@/stores/modal'
 
+export default {
+  data() {
+    return {
+
+    }
+  },
+  computed: { 
+    ...mapStores(useModalStore),
+    ...mapWritableState(useModalStore, {
+      'modalVisibility': 'isOpen',
+    })
+  },
+  methods: {
+    toggleAuthModal() {
+      this.modalVisibility = !this.modalVisibility;
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
