@@ -100,6 +100,9 @@
 </template>
 
 <script>
+import { auth } from '@/includes/firebase'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+
 export default {
   data() {
     return {
@@ -123,14 +126,23 @@ export default {
   },
   methods: {
     register(values) {
-      this.reg_show_alert = true
-      this.reg_in_submission = true
-      this.reg_alert_variant = 'bg-blue-500'
-      this.reg_alert_msg = 'Please wait! Your account is being create.'
-
+      let  userCredential = null;
+      createUserWithEmailAndPassword(auth, values.email, values.password)
+        .then((res) => {
+          userCredential = res;
+        }).catch((error) => {
+          this.reg_show_alert = true
+          this.reg_in_submission = false
+          this.reg_alert_variant = 'bg-red-500'
+          if(error.code == 'auth/email-already-in-use') {
+            this.reg_alert_msg = 'This email already exists.'
+          } else {
+            this.reg_alert_msg = 'An unexpected error occured. Please try again later.'
+          }
+          return;
+        });
       this.reg_alert_variant = 'bg-green-500'
       this.reg_alert_msg = 'Success! Your account has been created.'
-      console.log(values)
     }
   }
 }
