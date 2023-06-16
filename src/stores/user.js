@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { setDoc, doc } from 'firebase/firestore'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { auth, db } from '@/includes/firebase'
 
 export default defineStore('user', {
@@ -16,6 +16,9 @@ export default defineStore('user', {
                     this.userInfo = res.user
                 }
             )
+            await updateProfile(this.userInfo, {
+                displayName: values.name,
+            })
             await setDoc(doc(db, 'users', this.userInfo.uid), {
                 name: values.name,
                 email: values.email,
