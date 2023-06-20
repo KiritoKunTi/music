@@ -23,7 +23,7 @@
                             <router-link class="px-2 text-white" :to="{name: 'manage'}">Manage</router-link>
                         </li>
                         <li>
-                            <a class="px-2 text-white" href="#" @click.prevent="userStore.signOut">Log out</a>
+                            <a class="px-2 text-white" href="#" @click.prevent="signOut()">Log out</a>
                         </li>
                     </template>
                 </ul>
@@ -50,6 +50,12 @@ export default {
     methods: {
         toggleAuthModal() {
             this.modalVisibility = !this.modalVisibility
+        },
+        signOut() {
+            this.userStore.signOut();
+            if(this.$route.meta.requiresAuth) {
+                this.$router.push({ name: 'home' })
+            }
         }
     }
 }
