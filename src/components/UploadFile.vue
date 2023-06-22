@@ -34,8 +34,9 @@
 </template>
 
 <script>
-import { storage } from '@/includes/firebase'
-import { ref, uploadBytesResumable } from 'firebase/storage'
+import { storage, auth, db } from '@/includes/firebase'
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
+import { addDoc, collection } from 'firebase/firestore'
 
 export default {
     data() {
@@ -71,7 +72,20 @@ export default {
                     this.uploads[uploadIndex].variant = 'bg-red-400';
                     this.uploads[uploadIndex].icon = 'fas fa-times';
                     this.uploads[uploadIndex].text_class = 'text-red-400';
-                }, () => {
+                }, async () => {
+                    const song = {
+                        uid: auth.currentUser.uid,
+                        display_name: auth.currentUser.displayName,
+                        orignial_name: uploadTask.snapshot.ref.name,
+                        modified_name: uploadTask.snapshot.ref.name,
+                        genre: '',
+                        comment_count: 0,
+                    }
+                    await getDownloadURL(ref(storage, uploadTask.snapshot.ref.fullPath)).then(url => {
+                        song.url = url;
+                    });
+                    await addDoc(collection(db, 'songs'), song)
+                    
                     this.uploads[uploadIndex].variant = 'bg-green-400';
                     this.uploads[uploadIndex].icon = 'fas fa-check';
                     this.uploads[uploadIndex].text_class = 'text-green-400';
