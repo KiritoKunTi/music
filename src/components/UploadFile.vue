@@ -18,12 +18,15 @@
             </div>
             <hr class="my-6" />
             <!-- Progess Bars -->
-            <div class="mb-4">
+            <div class="mb-4" v-for="upload in uploads" :key="upload.name">
                 <!-- File Name -->
-                <div class="font-bold text-sm">Just another song.mp3</div>
+                <div class="font-bold text-sm" :class="upload.text_class">
+                    <i :class="upload.icon"></i>
+                    {{ upload.name }}
+                </div>
                 <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
                     <!-- Inner Progress Bar -->
-                    <div class="transition-all progress-bar bg-blue-400" style="width: 75%"></div>
+                    <div class="transition-all progress-bar bg-blue-400" :class="upload.variant" :style="{ width: upload.current_progress + '%' }"></div>
                 </div>
             </div>
         </div>
@@ -32,12 +35,13 @@
 
 <script>
 import { storage } from '@/includes/firebase'
-import { ref } from 'firebase/storage'
+import { ref, uploadBytesResumable } from 'firebase/storage'
 
 export default {
     data() {
         return {
             is_dragover: false,
+            uploads: [],
         }
     },
     methods: {
@@ -49,7 +53,29 @@ export default {
                     return;
                 }
                 const songsRef = ref(storage, `songs/${file.name}`);
-                // songsRef.put(file);
+                const uploadTask = uploadBytesResumable(songsRef, file);
+
+                const uploadIndex = this.uploads.push({
+                    uploadTask,
+                    current_progress: 0,
+                    name: file.name,
+                    variant: 'bg-blue-400',
+                    icon: 'fas fa-spinner fa-spin',
+                    text_class: '',
+                }) - 1;
+
+                uploadTask.on('state_changed', (snapshot) => {
+                    const progress = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+                    this.uploads[uploadIndex].current_progress = progress;
+                }, (error) => {
+                    this.uploads[uploadIndex].variant = 'bg-red-400';
+                    this.uploads[uploadIndex].icon = 'fas fa-times';
+                    this.uploads[uploadIndex].text_class = 'text-red-400';
+                }, () => {
+                    this.uploads[uploadIndex].variant = 'bg-green-400';
+                    this.uploads[uploadIndex].icon = 'fas fa-check';
+                    this.uploads[uploadIndex].text_class = 'text-green-400';
+                })
             })
             console.log(files);
         }
