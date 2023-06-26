@@ -36,9 +36,10 @@
 <script>
 import { storage, auth, db } from '@/includes/firebase'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, getDoc } from 'firebase/firestore'
 
 export default {
+    emits: ['addSong'],
     data() {
         return {
             is_dragover: false,
@@ -91,7 +92,9 @@ export default {
                     await getDownloadURL(ref(storage, uploadTask.snapshot.ref.fullPath)).then(url => {
                         song.url = url;
                     });
-                    await addDoc(collection(db, 'songs'), song)
+                    const songRef = await addDoc(collection(db, 'songs'), song)
+                    const songSnapshot = await getDoc(songRef);
+                    this.$emit('addSong', songSnapshot);
                     
                     this.uploads[uploadIndex].variant = 'bg-green-400';
                     this.uploads[uploadIndex].icon = 'fas fa-check';
