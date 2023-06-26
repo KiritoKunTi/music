@@ -17,7 +17,7 @@
             </div>
             <div class="p-6">
               <!-- Composition Items -->
-              <composition-item v-for="(song, index) in songs" :key="song.docID" :song="song" :update-song="updateSong" :remove-song="removeSong" :index="index"></composition-item>
+              <composition-item v-for="(song, index) in songs" :key="song.docID" :song="song" :update-song="updateSong" :remove-song="removeSong" @update-unsaved-flag="updateUnsavedFlag" :index="index"></composition-item>
             </div>
           </div>
         </div>
@@ -39,16 +39,13 @@ export default {
   data() {
     return {
       songs: [],
+      unsavedFlag: false,
     }
   },
   async created() {
     const querySongs = query(collection(db, 'songs'), where('uid', '==', auth.currentUser.uid));
     const snapshotSongs = await getDocs(querySongs);
     snapshotSongs.forEach(this.addSong)
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$refs.upload.cancelUploads();
-    next();
   },
   methods: {
     updateSong(i, values) {
@@ -64,8 +61,22 @@ export default {
         docID: document.id,
       }
       this.songs.push(song);
+    },
+    updateUnsavedFlag(value) {
+      this.unsavedFlag = value;
     }
-  }
+  },
+  beforeRouteLeave(to, from, next) {
+    let toCancel = true;
+    if(this.unsavedFlag) {
+      const leave = confirm('You have unsaved changes. Are you sure you want to leave?')
+      toCancel = leave;
+    }
+    if(toCancel) {
+      this.$refs.upload.cancelUploads();
+      next();
+    }
+  },
 }
 </script>
 

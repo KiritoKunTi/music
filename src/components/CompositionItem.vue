@@ -16,12 +16,12 @@
             <vee-form :validation-schema="schema" @submit="editSong" :initial-values="song">
                 <div class="mb-3">
                     <label class="inline-block mb-2">{{  }}</label>
-                    <vee-field type="text" name="modified_name" class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded" placeholder="Enter Song Title"/>
+                    <vee-field type="text" name="modified_name" class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded" placeholder="Enter Song Title" @input="$emit('updateUnsavedFlag', true)"/>
                     <error-message class="text-red-400" name="modified_name"></error-message>
                 </div>
                 <div class="mb-3">
                     <label class="inline-block mb-2">{{ song.genre }}</label>
-                    <vee-field type="text" name="genre" class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded" placeholder="Enter Genre"/>
+                    <vee-field type="text" name="genre" class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded" placeholder="Enter Genre" @input="$emit('updateUnsavedFlag', true)"/>
                     <error-message class="text-red-400" name="genre"></error-message>
                 </div>
                 <button type="submit" class="py-1.5 px-3 rounded text-white bg-green-600" :disabled="in_submission">Submit</button>
@@ -55,6 +55,7 @@ export default {
             required: true,
         },
     },
+    emits: ['updateUnsavedFlag'],
     data() {
         return {
             showForm: false,
@@ -84,6 +85,8 @@ export default {
                 return;
             }
             this.updateSong(this.index, values)
+            this.$emit('updateUnsavedFlag', false)
+
             this.in_submission = false;
             this.alert_variant = 'bg-green-500';
             this.alert_messag = 'Song information updated succesfully!'
