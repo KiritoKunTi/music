@@ -6,14 +6,17 @@
         </div>
         <div class="p-6">
             <!-- Upload Dropbox -->
-            <div class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid" :class="{ 'bg-green-400 border-green-400 border-solid': is_dragover }" 
-            @drag.prevent.stop="" 
-            @dragstart.prevent.stop="" 
-            @dragend.prevent.stop="is_dragover = false" 
-            @dragover.prevent.stop="is_dragover = true" 
-            @dragenter.prevent.stop="is_dragover = true" 
-            @dragleave.prevent.stop="is_dragover = false" 
-            @drop.prevent.stop="upload($event)">
+            <div
+                class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid"
+                :class="{ 'bg-green-400 border-green-400 border-solid': is_dragover }"
+                @drag.prevent.stop=""
+                @dragstart.prevent.stop=""
+                @dragend.prevent.stop="is_dragover = false"
+                @dragover.prevent.stop="is_dragover = true"
+                @dragenter.prevent.stop="is_dragover = true"
+                @dragleave.prevent.stop="is_dragover = false"
+                @drop.prevent.stop="upload($event)"
+            >
                 <h5>Drop your files here</h5>
             </div>
             <hr class="my-6" />
@@ -26,7 +29,11 @@
                 </div>
                 <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
                     <!-- Inner Progress Bar -->
-                    <div class="transition-all progress-bar bg-blue-400" :class="upload.variant" :style="{ width: upload.current_progress + '%' }"></div>
+                    <div
+                        class="transition-all progress-bar bg-blue-400"
+                        :class="upload.variant"
+                        :style="{ width: upload.current_progress + '%' }"
+                    ></div>
                 </div>
             </div>
         </div>
@@ -43,70 +50,76 @@ export default {
     data() {
         return {
             is_dragover: false,
-            uploads: [],
+            uploads: []
         }
     },
     methods: {
         cancelUploads() {
-            this.uploads.forEach(upload => {
-                upload.uploadTask.cancel();
+            this.uploads.forEach((upload) => {
+                upload.uploadTask.cancel()
             })
         },
         upload($event) {
-            this.is_dragover = false;
-            const files = $event.dataTransfer 
+            this.is_dragover = false
+            const files = $event.dataTransfer
                 ? [...$event.dataTransfer.files]
-                : [...$event.target.files];
-            files.forEach(file => {
-                if(file.type !== 'audio/mpeg') {
-                    return;
+                : [...$event.target.files]
+            files.forEach((file) => {
+                if (file.type !== 'audio/mpeg') {
+                    return
                 }
-                const songsRef = ref(storage, `songs/${file.name}`);
-                const uploadTask = uploadBytesResumable(songsRef, file);
+                const songsRef = ref(storage, `songs/${file.name}`)
+                const uploadTask = uploadBytesResumable(songsRef, file)
 
-                const uploadIndex = this.uploads.push({
-                    uploadTask,
-                    current_progress: 0,
-                    name: file.name,
-                    variant: 'bg-blue-400',
-                    icon: 'fas fa-spinner fa-spin',
-                    text_class: '',
-                }) - 1;
+                const uploadIndex =
+                    this.uploads.push({
+                        uploadTask,
+                        current_progress: 0,
+                        name: file.name,
+                        variant: 'bg-blue-400',
+                        icon: 'fas fa-spinner fa-spin',
+                        text_class: ''
+                    }) - 1
 
-                uploadTask.on('state_changed', (snapshot) => {
-                    const progress = snapshot.bytesTransferred / snapshot.totalBytes * 100;
-                    this.uploads[uploadIndex].current_progress = progress;
-                }, (error) => {
-                    this.uploads[uploadIndex].variant = 'bg-red-400';
-                    this.uploads[uploadIndex].icon = 'fas fa-times';
-                    this.uploads[uploadIndex].text_class = 'text-red-400';
-                }, async () => {
-                    const song = {
-                        uid: auth.currentUser.uid,
-                        display_name: auth.currentUser.displayName,
-                        orignial_name: uploadTask.snapshot.ref.name,
-                        modified_name: uploadTask.snapshot.ref.name,
-                        genre: '',
-                        comment_count: 0,
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                        this.uploads[uploadIndex].current_progress = progress
+                    },
+                    (error) => {
+                        this.uploads[uploadIndex].variant = 'bg-red-400'
+                        this.uploads[uploadIndex].icon = 'fas fa-times'
+                        this.uploads[uploadIndex].text_class = 'text-red-400'
+                    },
+                    async () => {
+                        const song = {
+                            uid: auth.currentUser.uid,
+                            display_name: auth.currentUser.displayName,
+                            orignial_name: uploadTask.snapshot.ref.name,
+                            modified_name: uploadTask.snapshot.ref.name,
+                            genre: '',
+                            comment_count: 0
+                        }
+                        await getDownloadURL(ref(storage, uploadTask.snapshot.ref.fullPath)).then(
+                            (url) => {
+                                song.url = url
+                            }
+                        )
+                        const songRef = await addDoc(collection(db, 'songs'), song)
+                        const songSnapshot = await getDoc(songRef)
+                        this.$emit('addSong', songSnapshot)
+
+                        this.uploads[uploadIndex].variant = 'bg-green-400'
+                        this.uploads[uploadIndex].icon = 'fas fa-check'
+                        this.uploads[uploadIndex].text_class = 'text-green-400'
                     }
-                    await getDownloadURL(ref(storage, uploadTask.snapshot.ref.fullPath)).then(url => {
-                        song.url = url;
-                    });
-                    const songRef = await addDoc(collection(db, 'songs'), song)
-                    const songSnapshot = await getDoc(songRef);
-                    this.$emit('addSong', songSnapshot);
-                    
-                    this.uploads[uploadIndex].variant = 'bg-green-400';
-                    this.uploads[uploadIndex].icon = 'fas fa-check';
-                    this.uploads[uploadIndex].text_class = 'text-green-400';
-                })
+                )
             })
-            console.log(files);
+            console.log(files)
         }
     }
 }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -1,21 +1,26 @@
 <template>
     <!-- Introduction -->
     <section class="mb-8 py-20 text-white text-center relative">
-        <div class="absolute inset-0 w-full h-full bg-contain introduction-bg"
-            style="background-image: url(assets/img/header.png)"></div>
+        <div
+            class="absolute inset-0 w-full h-full bg-contain introduction-bg"
+            style="background-image: url(assets/img/header.png)"
+        ></div>
         <div class="container mx-auto">
             <div class="text-white main-header-content">
                 <h1 class="font-bold text-5xl mb-5">Listen to Great Music!</h1>
                 <p class="w-full md:w-8/12 mx-auto">
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus et dolor
-                    mollis, congue augue non, venenatis elit. Nunc justo eros, suscipit ac
-                    aliquet imperdiet, venenatis et sapien. Duis sed magna pulvinar, fringilla
-                    lorem eget, ullamcorper urna.
+                    mollis, congue augue non, venenatis elit. Nunc justo eros, suscipit ac aliquet
+                    imperdiet, venenatis et sapien. Duis sed magna pulvinar, fringilla lorem eget,
+                    ullamcorper urna.
                 </p>
             </div>
         </div>
 
-        <img class="relative block mx-auto mt-5 -mb-20 w-auto max-w-full" src="/assets/img/introduction-music.png" />
+        <img
+            class="relative block mx-auto mt-5 -mb-20 w-auto max-w-full"
+            src="/assets/img/introduction-music.png"
+        />
     </section>
 
     <!-- Main Content -->
@@ -37,63 +42,83 @@
 
 <script>
 import { db } from '@/includes/firebase'
-import { collection, getDocs, query, limit, startAfter, getDoc, doc, orderBy } from 'firebase/firestore'
+import {
+    collection,
+    getDocs,
+    query,
+    limit,
+    startAfter,
+    getDoc,
+    doc,
+    orderBy
+} from 'firebase/firestore'
 import SongItem from '@/components/SongItem.vue'
 
 export default {
     components: {
-        SongItem,
+        SongItem
     },
     data() {
         return {
             songs: [],
             maxPerPage: 5,
-            pendingRequest: false,
+            pendingRequest: false
         }
     },
     async created() {
-        this.getSongs();
+        this.getSongs()
 
-        window.addEventListener('scroll', this.handleScroll);
+        window.addEventListener('scroll', this.handleScroll)
     },
     beforeUnmount() {
-        window.removeEventListener('scroll', this.handleScroll);
+        window.removeEventListener('scroll', this.handleScroll)
     },
     methods: {
         handleScroll() {
-            const { scrollTop, offsetHeight } = document.documentElement;
-            const { innerHeight } = window;
-            const bottomOfWindow = Math.round(scrollTop) + innerHeight === offsetHeight;
+            const { scrollTop, offsetHeight } = document.documentElement
+            const { innerHeight } = window
+            const bottomOfWindow = Math.round(scrollTop) + innerHeight === offsetHeight
 
             if (bottomOfWindow) {
-                this.getSongs();
+                this.getSongs()
             }
         },
         async getSongs() {
             if (this.pendingRequest) {
-                return;
+                return
             }
 
-            this.pendingRequest = true;
+            this.pendingRequest = true
 
-            let querySongs;
+            let querySongs
             if (this.songs.length > 0) {
-                const lastDoc = await getDoc(doc(db, 'songs', this.songs[this.songs.length - 1].docID));
-                querySongs = query(collection(db, 'songs'), orderBy('modified_name'), startAfter(lastDoc), limit(this.maxPerPage))
+                const lastDoc = await getDoc(
+                    doc(db, 'songs', this.songs[this.songs.length - 1].docID)
+                )
+                querySongs = query(
+                    collection(db, 'songs'),
+                    orderBy('modified_name'),
+                    startAfter(lastDoc),
+                    limit(this.maxPerPage)
+                )
             } else {
-                querySongs = query(collection(db, 'songs'), orderBy('modified_name'), limit(this.maxPerPage))
+                querySongs = query(
+                    collection(db, 'songs'),
+                    orderBy('modified_name'),
+                    limit(this.maxPerPage)
+                )
             }
-            const snapshots = await getDocs(querySongs);
+            const snapshots = await getDocs(querySongs)
 
             snapshots.forEach((document) => {
                 this.songs.push({
                     docID: document.id,
-                    ...document.data(),
+                    ...document.data()
                 })
             })
 
-            this.pendingRequest = false;
-        },
+            this.pendingRequest = false
+        }
     }
 }
 </script>

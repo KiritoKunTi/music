@@ -9,10 +9,10 @@ import { auth } from '@/includes/firebase'
 import App from './App.vue'
 import router from './router'
 
-let app;
+let app
 
 auth.onAuthStateChanged(() => {
-    if(!app) {
+    if (!app) {
         app = createApp(App)
         app.use(createPinia())
         app.use(router)

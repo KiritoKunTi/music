@@ -20,12 +20,12 @@ const router = createRouter({
             name: 'manage',
             component: () => import('@/views/ManageView.vue'),
             meta: {
-                requiresAuth: true,
+                requiresAuth: true
             }
         },
         {
             path: '/manage',
-            redirect: { name: 'manage' },
+            redirect: { name: 'manage' }
         },
         {
             path: '/song/:id',
@@ -40,14 +40,14 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    if(!to.meta.requiresAuth) {
-        next();
-        return;
+    if (!to.meta.requiresAuth) {
+        next()
+        return
     }
-    const store = useUserStore();
+    const store = useUserStore()
 
-    if(store.userLoggedIn) {
-        next();
+    if (store.userLoggedIn) {
+        next()
     } else {
         next({ name: 'home' })
     }
