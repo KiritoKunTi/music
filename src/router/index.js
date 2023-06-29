@@ -28,6 +28,11 @@ const router = createRouter({
             redirect: { name: 'manage' },
         },
         {
+            path: '/song/:id',
+            name: 'song',
+            component: () => import('@/views/SongView.vue')
+        },
+        {
             path: '/:catchAll(.*)*',
             redirect: { name: 'home' }
         }
