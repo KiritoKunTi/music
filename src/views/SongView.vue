@@ -24,12 +24,13 @@
                     <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
                 </div>
                 <div class="p-6">
-                    <form>
-                        <textarea class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4" placeholder="Your comment here..." ></textarea>
+                    <vee-form :validation-schema="schema" @submit='giveComment'>
+                        <vee-field name="comment" class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4" placeholder="Your comment here..." ></vee-field>
+                        <error-message class="text-red-400" name="comment"></error-message>
                         <button type="submit" class="py-1.5 px-3 rounded text-white bg-green-600 block">
                             Submit
                         </button>
-                    </form>
+                    </vee-form>
                     <!-- Sort Comments -->
                     <select class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded" >
                         <option value="1">Latest</option>
@@ -63,6 +64,10 @@ export default {
     data() {
         return {
             song: null,
+            comment: '',
+            schema: {
+                comment: 'required|min:3',
+            },
         }
     },
     async created() {
@@ -78,6 +83,9 @@ export default {
             }
 
             this.song = songSnapshot.data();
+        },
+        giveComment(values) {
+            console.log(values);
         }
     }
 }
