@@ -44,16 +44,13 @@
         </section>
         <!-- Comments -->
         <ul class="container mx-auto">
-            <li class="p-6 bg-gray-50 border border-gray-200">
+            <li class="p-6 bg-gray-50 border border-gray-200" v-for="comment in comments" :key="comment.docID">
                 <!-- Comment Author -->
                 <div class="mb-5">
-                    <div class="font-bold">Elaine Dreyfuss</div>
-                    <time>5 mins ago</time>
+                    <div class="font-bold">{{ comment.name }}</div>
+                    <time>{{ comment.datePosted }}</time>
                 </div>
-                <p>
-                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium der
-                    doloremque laudantium.
-                </p>
+                <p>{{ comment.content }}</p>
             </li>
         </ul>
     </div>
@@ -61,7 +58,7 @@
 
 <script>
 import { db, auth, commentsCollection } from '@/includes/firebase'
-import { doc, getDoc, addDoc } from 'firebase/firestore'
+import { doc, getDoc, addDoc, getDocs, query, where } from 'firebase/firestore'
 import { mapState } from 'pinia'
 import useUserStore from '@/stores/user'
 
@@ -69,7 +66,7 @@ export default {
     data() {
         return {
             song: null,
-            comment: '',
+            comments: [],
             schema: {
                 comment: 'required|min:3',
             },
@@ -84,6 +81,7 @@ export default {
     },
     async created() {
         this.getSong();
+        this.getComments();
     },
     methods: {
         async getSong() {
@@ -95,6 +93,17 @@ export default {
             }
 
             this.song = songSnapshot.data();
+        },
+        async getComments() {
+            const commentsOfSongQuery = query(commentsCollection, where('sid', '==', this.$route.params.id))
+            const commentsSnapshot = await getDocs(commentsOfSongQuery);
+            this.comments = [];
+            commentsSnapshot.forEach((document) => {
+                this.comments.push({
+                    docID: document.id,
+                    ...document.data(),
+                });
+            })
         },
         async addComment(values, { resetForm }) {
             this.comment_in_submission = true;
@@ -110,6 +119,8 @@ export default {
                 uid: auth.currentUser.uid,
             }
             await addDoc(commentsCollection, comment);
+
+            this.getComments();
 
             this.comment_in_submission = false;
             this.comment_alert_varialt = 'bg-green-500';
