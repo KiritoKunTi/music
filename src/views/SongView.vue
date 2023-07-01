@@ -88,7 +88,21 @@ export default {
             })
         }
     },
+    watch: {
+        sort(newVal) {
+            if(newVal == this.$route.query.sort) {
+                return;
+            }
+            this.$router.push({
+                query: {
+                    sort: newVal,
+                }
+            })
+        }
+    },
     async created() {
+        const { sort } = this.$route.query.sort || '1';
+        this.sort = sort === '1' || sort === '2' ? sort : '1';
         this.getSong();
         this.getComments();
     },
