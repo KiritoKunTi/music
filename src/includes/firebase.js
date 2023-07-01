@@ -17,3 +17,4 @@ export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 export const commentsCollection = collection(db, 'comments');
+export const songsCollection = collection(db, 'songs');

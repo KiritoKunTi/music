@@ -58,7 +58,7 @@
 
 <script>
 import { db, auth, commentsCollection } from '@/includes/firebase'
-import { doc, getDoc, addDoc, getDocs, query, where } from 'firebase/firestore'
+import { doc, getDoc, addDoc, getDocs, query, where, updateDoc } from 'firebase/firestore'
 import { mapState } from 'pinia'
 import useUserStore from '@/stores/user'
 
@@ -142,6 +142,11 @@ export default {
                 uid: auth.currentUser.uid,
             }
             await addDoc(commentsCollection, comment);
+
+            this.song.comment_count += 1;
+            await updateDoc(doc(db, 'songs', this.$route.params.id), {
+                comment_count: this.song.comment_count,
+            })
 
             this.getComments();
 
