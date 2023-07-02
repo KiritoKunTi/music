@@ -11,12 +11,16 @@
             <span class="text-gray-500 text-sm">{{ song.display_name }}</span>
         </div>
 
-        <div class="text-gray-600 text-lg">
-            <span class="comments">
-                <i class="fa fa-comments text-gray-600"></i>
-                {{ song.comment_count }}
-            </span>
-        </div>
+        <div class="text-gray-600 text-lg group">
+            <router-link custom :to="{ name: 'song', params: { id: song.docID }, hash: '#comments' }" v-slot="{ navigate }"> 
+                <span class="comments" @click="navigate">
+                    <i class="fa fa-comments text-gray-600 group-hover:text-green-600"></i>
+                    <span class="group-hover:text-green-600 ml-1.5"> 
+                        {{ song.comment_count }}
+                    </span>
+                </span>
+            </router-link>
+            </div>
     </li>
 </template>
 
