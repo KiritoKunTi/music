@@ -86,7 +86,9 @@
                 type="checkbox"
                 class="w-4 h-4 float-left -ml-6 mt-1 rounded"
             />
-            <label class="inline-block">Accept terms of service</label>
+            <i18n-t class="inline-block" keypath="register.accept" tag="label">
+                <a href="#">{{ $t('register.tos') }}</a>
+            </i18n-t>
             <ErrorMessage class="text-red-600 block" name="tos" />
         </div>
         <button
@@ -100,10 +102,6 @@
 </template>
 
 <script>
-import { auth } from '@/includes/firebase'
-// import { db } from '@/includes/firebase'
-// import { doc, setDoc } from 'firebase/firestore'
-// import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { mapActions } from 'pinia'
 import useUserStore from '@/stores/user'
 
