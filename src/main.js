@@ -10,6 +10,7 @@ import App from '@/App.vue'
 import router from '@/router'
 import i18n from '@/includes/i18n'
 import Icon from '@/directives/icon'
+import GlobalCopmonents from '@/includes/_globals'
 
 let app
 
@@ -20,7 +21,7 @@ auth.onAuthStateChanged(() => {
         app.use(router)
         app.use(VeeValidatePlugin)
         app.use(i18n);
-
+        app.use(GlobalCopmonents);
         app.directive('icon', Icon)
 
         app.mount('#app')
