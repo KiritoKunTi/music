@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import upperFirst from 'lodash/upperCase'
+import camelCase from 'lodash/camelCase'
 
 export default {
     install(app) {
