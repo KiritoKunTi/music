@@ -11,8 +11,13 @@ import router from '@/router'
 import i18n from '@/includes/i18n'
 import Icon from '@/directives/icon'
 import GlobalCopmonents from '@/includes/_globals'
+import progressBar from './includes/progress-bar'
 
-let app
+import 'nprogress/nprogress.css'
+
+progressBar(router);
+
+let app;
 
 auth.onAuthStateChanged(() => {
     if (!app) {
